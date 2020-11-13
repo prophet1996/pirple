@@ -9,17 +9,17 @@ module.exports = {
     ecmaVersion: 12,
   },
   rules: {
-    "import/extensions": [
-       "error",
-       "ignorePackages",
-       {
-         "js": "never",
-         "jsx": "never",
-         "ts": "never",
-         "tsx": "never"
-       }
-    ]
- },
+    'import/extensions': [
+      'error',
+      'ignorePackages',
+      {
+        js: 'never',
+        jsx: 'never',
+        ts: 'never',
+        tsx: 'never',
+      },
+    ],
+  },
   root: true,
   parser: '@typescript-eslint/parser',
   plugins: [
@@ -35,7 +35,7 @@ module.exports = {
     'import/resolver': {
       node: {
         extensions: ['.js', '.ts'],
-        moduleDirectory: ['node_modules', 'src/'],
+        moduleDirectory: ['node_modules', 'src/', 'lib/'],
       },
     },
   },

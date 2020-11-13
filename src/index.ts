@@ -6,16 +6,23 @@
 
 // dependencies
 import http, { IncomingMessage, ServerResponse } from 'http';
+import https from 'https';
 import url from 'url';
+import path from 'path';
 import { StringDecoder } from 'string_decoder';
+import { readFileSync } from 'fs';
 
 import config from './config';
+import _data from '../lib/data';
 
-const { port, envName } = config;
+_data.read('test', 'newfile', (err:string|boolean) => {
+  console.log('err is', err);
+});
+const { httpPort, httpsPort, envName } = config;
 
 const handler:any = {};
-handler.sample = (data:any, callback:any) => {
-  callback(200, JSON.parse(data.payload));
+handler.ping = (data:any, callback:any) => {
+  callback(200);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -24,14 +31,14 @@ handler.notFound = (_:any, callback:any) => {
 };
 
 const router:any = {
-  sample: handler.sample,
+  ping: handler.ping,
 };
 
-const server = http.createServer((req:IncomingMessage, res:ServerResponse) => {
+const mainServer = (req:IncomingMessage, res:ServerResponse) => {
   const { headers, url: reqUrl } = req;
   const parsedUrl = url.parse(reqUrl || '', true);
-  const { pathname: path, query } = parsedUrl;
-  const trimmedPath = path?.replace(/^\/+|\/+$/g, '') || '';
+  const { pathname: reqPath, query } = parsedUrl;
+  const trimmedPath = reqPath?.replace(/^\/+|\/+$/g, '') || '';
 
   const method = req.method?.toLowerCase();
 
@@ -65,8 +72,28 @@ const server = http.createServer((req:IncomingMessage, res:ServerResponse) => {
       res.end(payloadString);
     });
   });
+};
+
+const httpServer = http.createServer((req:IncomingMessage, res:ServerResponse) => {
+  mainServer(req, res);
 });
 
-server.listen(port, () => {
-  console.log(`The server is listening on port ${port} on ${envName}`);
+httpServer.listen(httpPort, () => {
+  // eslint-disable-next-line no-console
+  console.log(`The server is listening on port ${httpPort} on ${envName}`);
+});
+
+const httpsServerOptions = {
+  key: readFileSync(path.resolve(__dirname, '../https/key.pem')),
+  cert: readFileSync(path.resolve(__dirname, '../https/cert.pem')),
+};
+
+const httpsServer = https.createServer(httpsServerOptions,
+  (req:IncomingMessage, res:ServerResponse) => {
+    mainServer(req, res);
+  });
+
+httpsServer.listen(httpsPort, () => {
+  // eslint-disable-next-line no-console
+  console.log(`The server is listening on port ${httpsPort} on ${envName}`);
 });

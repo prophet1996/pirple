@@ -4,8 +4,6 @@
  *
  */
 
-import { env } from 'process';
-
 const environment:any = {
 
 };
@@ -13,14 +11,16 @@ const environment:any = {
 // Staging (default) environment
 
 environment.staging = {
-  port: 3000,
+  httpPort: 3000,
+  httpsPort: 3001,
   envName: 'staging',
 };
 
 // Prod environment
 
 environment.prod = {
-  port: 5000,
+  httpPort: 5000,
+  httpsPort: 5001,
   envName: 'prod',
 };
 
