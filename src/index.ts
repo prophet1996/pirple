@@ -13,9 +13,9 @@ import { StringDecoder } from 'string_decoder';
 import { readFileSync } from 'fs';
 
 import config from './config';
-import _data from '../lib/data';
+import dataOp from '../lib/data';
 
-_data.read('test', 'newfile', (err:string|boolean) => {
+dataOp.read('test', 'newfile', (err:string|boolean) => {
   console.log('err is', err);
 });
 const { httpPort, httpsPort, envName } = config;
