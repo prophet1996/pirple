@@ -6,32 +6,22 @@
 
 // dependencies
 import http, { IncomingMessage, ServerResponse } from 'http';
-import https from 'https';
+// import https from 'https';
 import url from 'url';
 import path from 'path';
 import { StringDecoder } from 'string_decoder';
 import { readFileSync } from 'fs';
 
 import config from './config';
-import dataOp from '../lib/data';
+import handlers from '../lib/handlers';
+import { parseJsonToObject } from '../lib/helpers';
 
-dataOp.read('test', 'newfile', (err:string|boolean) => {
-  console.log('err is', err);
-});
-const { httpPort, httpsPort, envName } = config;
-
-const handler:any = {};
-handler.ping = (data:any, callback:any) => {
-  callback(200);
-};
-
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-handler.notFound = (_:any, callback:any) => {
-  callback();
-};
+const { httpPort, envName } = config;
 
 const router:any = {
-  ping: handler.ping,
+  ping: handlers.ping,
+  users: handlers.users,
+  tokens: handlers.tokens,
 };
 
 const mainServer = (req:IncomingMessage, res:ServerResponse) => {
@@ -52,24 +42,26 @@ const mainServer = (req:IncomingMessage, res:ServerResponse) => {
   req.on('end', () => {
     buffer += decoder.end();
     const chosenHandler = (typeof router[trimmedPath] !== 'undefined')
-      ? router[trimmedPath] : handler.notFound;
+      ? router[trimmedPath] : handlers.notFound;
 
     const data = {
       trimmedPath,
       query,
       method,
       headers,
-      payload: buffer,
+      payload: parseJsonToObject(buffer),
     };
     chosenHandler(data, (statusCode = 200, _data = {}) => {
       const status = typeof (statusCode) === 'number' ? statusCode : 200;
       const payload = typeof (_data) === 'object' ? _data : {};
 
-      const payloadString = JSON.stringify(payload);
-
       res.setHeader('Content-Type', 'application/json');
       res.writeHead(status);
-      res.end(payloadString);
+      if (statusCode !== 204) {
+        const payloadString = JSON.stringify(payload);
+        res.end(payloadString);
+      }
+      res.end();
     });
   });
 };
@@ -88,12 +80,12 @@ const httpsServerOptions = {
   cert: readFileSync(path.resolve(__dirname, '../https/cert.pem')),
 };
 
-const httpsServer = https.createServer(httpsServerOptions,
-  (req:IncomingMessage, res:ServerResponse) => {
-    mainServer(req, res);
-  });
+// const httpsServer = https.createServer(httpsServerOptions,
+//   (req:IncomingMessage, res:ServerResponse) => {
+//     mainServer(req, res);
+//   });
 
-httpsServer.listen(httpsPort, () => {
-  // eslint-disable-next-line no-console
-  console.log(`The server is listening on port ${httpsPort} on ${envName}`);
-});
+// httpsServer.listen(httpsPort, () => {
+//   // eslint-disable-next-line no-console
+//   console.log(`The server is listening on port ${httpsPort} on ${envName}`);
+// });

@@ -9,6 +9,8 @@ module.exports = {
     ecmaVersion: 12,
   },
   rules: {
+    '@typescript-eslint/no-explicit-any': 'off',
+    'import/prefer-default-export': 'off',
     'import/extensions': [
       'error',
       'ignorePackages',

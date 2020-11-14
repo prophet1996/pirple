@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { parseJsonToObject } from './helpers';
 
-const lib : {baseDir:string, create:any, read:any, update:any} = {
+const lib : {baseDir:string, create:any, read:any, update:any, delete:any} = {
   baseDir: path.resolve(__dirname, '../.data'),
   create: (dir:string, file:string, data:any, callback:(_:string|boolean)=>void) => {
     fs.open(`${lib.baseDir}/${dir}/${file}.json`, 'wx', (err, fileDescriptor) => {
@@ -21,12 +22,12 @@ const lib : {baseDir:string, create:any, read:any, update:any} = {
       }
     });
   },
-  read: (dir:string, file:string, callback:(_:any)=>void) => {
+  read: (dir:string, file:string, callback:(_err:any, _data:any)=>void) => {
     fs.readFile(`${lib.baseDir}/${dir}/${file}.json`, 'utf-8', (readErr, data:any) => {
       if (!readErr) {
-        callback(data);
+        callback(false, parseJsonToObject(data));
       } else {
-        callback(readErr);
+        callback(readErr, null);
       }
     });
   },
@@ -57,6 +58,16 @@ const lib : {baseDir:string, create:any, read:any, update:any} = {
       }
     });
   },
+  delete: (dir:string, file:string, callback:(_:any)=>void) => {
+    fs.unlink(`${lib.baseDir}/${dir}/${file}.json`, (deleteErr) => {
+      if (!deleteErr) {
+        callback(false);
+      } else {
+        callback(deleteErr);
+      }
+    });
+  },
+
 };
 
 export default lib;
