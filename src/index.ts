@@ -22,6 +22,7 @@ const router:any = {
   ping: handlers.ping,
   users: handlers.users,
   tokens: handlers.tokens,
+  checks: handlers.checks,
 };
 
 const mainServer = (req:IncomingMessage, res:ServerResponse) => {

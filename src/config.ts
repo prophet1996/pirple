@@ -15,6 +15,8 @@ environment.staging = {
   httpsPort: 3001,
   envName: 'staging',
   hashingSecret: 'thisIsascret',
+  maxChecks: 5,
+  defaultMethods: ['GET', 'POST', 'PUT', 'DELETE'],
 };
 
 // Prod environment
@@ -24,6 +26,8 @@ environment.prod = {
   httpsPort: 5001,
   envName: 'prod',
   hashingSecret: 'thisIsAlsoascret',
+  maxChecks: 5,
+  defaultMethods: ['GET', 'POST', 'PUT', 'DELETE'],
 
 };
 
